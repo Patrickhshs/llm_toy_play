@@ -25,23 +25,26 @@ tokenizer_2 = AutoTokenizer.from_pretrained(model_name_2)
 model_2 = AutoModelForCausalLM.from_pretrained(model_name_2)
 
 def simulate_conversation(initial_prompt, num_turns):
-    prompt = initial_prompt
+    response = initial_prompt
     for turn in range(num_turns):
         if turn % 2 == 0:
             # Model 1 generates a response
-            inputs = tokenizer_1(prompt, return_tensors="pt")
-            outputs = model_1.generate(**inputs, max_length=256, pad_token_id=tokenizer_1.eos_token_id)
+            inputs = tokenizer_1(response[-128:], return_tensors="pt")
+            outputs = model_1.generate(**inputs,max_length=128,  pad_token_id=tokenizer_1.eos_token_id)
             response = tokenizer_1.decode(outputs[0], skip_special_tokens=True)
             print(f"Model 1: {response}\n")
         else:
             # Model 2 generates a response
-            inputs = tokenizer_2(response, return_tensors="pt")
-            outputs = model_2.generate(**inputs, max_length=256, pad_token_id=tokenizer_2.eos_token_id)
+            inputs = tokenizer_2(response[-128:], return_tensors="pt")
+            outputs = model_2.generate(**inputs,max_length=128, pad_token_id=tokenizer_2.eos_token_id)
             response = tokenizer_2.decode(outputs[0], skip_special_tokens=True)
             print(f"Model 2: {response}\n")
-        prompt = response
+        # prompt = response
 
 # Example usage
-initial_prompt = "Hello, how are you?"
-num_turns = 5
+# initial_prompt = "Discuss how to solve a minimax problem like GAN?"
+# ======= intruction tuning 
+# ======= initial_prompt = "Discuss how to solve a minimax problem like GAN?"
+initial_prompt = "Discuss how to solve a minimax problem like GAN, avoid repeating the same words in the response. Make sure the conversation is interesting. You can also ask questions to the other model."
+num_turns = 10
 simulate_conversation(initial_prompt, num_turns)
